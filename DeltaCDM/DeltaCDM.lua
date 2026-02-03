@@ -1,5 +1,5 @@
 -- 1. CONFIGURATION & DEFAULTS
-local addonName = "CDMVisibility"
+local addonName = "DeltaCDM"
 local framesToManage = {
     "EssentialCooldownViewer",
     "UtilityCooldownViewer",
@@ -23,7 +23,7 @@ f:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 -- 3. LOGIC
 local function UpdateVisibility()
-    if not CDMVisibilityDB then return end -- Safety check
+    if not DeltaCDMDB then return end -- Safety check
 
     local outCombat = not UnitAffectingCombat("player")
     local isMounted = IsMounted()
@@ -31,11 +31,11 @@ local function UpdateVisibility()
     -- Determine if we should HIDE based on settings
     local shouldHide = false
 
-    if CDMVisibilityDB.hideOutCombat and outCombat then
+    if DeltaCDMDB.hideOutCombat and outCombat then
         shouldHide = true
     end
 
-    if CDMVisibilityDB.hideMounted and isMounted then
+    if DeltaCDMDB.hideMounted and isMounted then
         shouldHide = true
     end
 
@@ -55,8 +55,8 @@ end
 f:SetScript("OnEvent", function(_, event, arg1)
     -- Load SavedVariables when addon loads
     if event == "ADDON_LOADED" and arg1 == addonName then
-        if CDMVisibilityDB == nil then
-            CDMVisibilityDB = CopyTable(defaults)
+        if DeltaCDMDB == nil then
+            DeltaCDMDB = CopyTable(defaults)
         end
         UpdateVisibility()
 
@@ -67,25 +67,25 @@ f:SetScript("OnEvent", function(_, event, arg1)
 end)
 
 -- 4. SLASH COMMANDS
-SLASH_CDMVISIBILITY1 = "/cdmv"
+SLASH_DELTACDM1 = "/dcdm"
 
-SlashCmdList["CDMVISIBILITY"] = function(msg)
+SlashCmdList["DELTACDM"] = function(msg)
     msg = msg:lower():trim()
 
     if msg == "combat" then
-        CDMVisibilityDB.hideOutCombat = not CDMVisibilityDB.hideOutCombat
-        print("|cff00ccffCDM:|r Hide in Combat is now: " .. (CDMVisibilityDB.hideOutCombat and "|cffff0000ON|r" or "|cff00ff00OFF|r"))
+        DeltaCDMDB.hideOutCombat = not DeltaCDMDB.hideOutCombat
+        print("|cff00ccffCDM:|r Hide out of Combat is now: " .. (DeltaCDMDB.hideOutCombat and "|cffff0000ON|r" or "|cff00ff00OFF|r"))
         UpdateVisibility()
 
     elseif msg == "mounted" then
-        CDMVisibilityDB.hideMounted = not CDMVisibilityDB.hideMounted
-        print("|cff00ccffCDM:|r Hide while Mounted is now: " .. (CDMVisibilityDB.hideMounted and "|cffff0000ON|r" or "|cff00ff00OFF|r"))
+        DeltaCDMDB.hideMounted = not DeltaCDMDB.hideMounted
+        print("|cff00ccffCDM:|r Hide while Mounted is now: " .. (DeltaCDMDB.hideMounted and "|cffff0000ON|r" or "|cff00ff00OFF|r"))
         UpdateVisibility()
 
     else
         -- Status / Help
-        print("|cff00ccffCDMVisibility Status:|r")
-        print("  Hide in Combat: " .. (CDMVisibilityDB.hideOutCombat and "|cffff0000ON|r" or "|cff00ff00OFF|r") .. " (Type '/cdmv combat' to toggle)")
-        print("  Hide Mounted:   " .. (CDMVisibilityDB.hideMounted and "|cffff0000ON|r" or "|cff00ff00OFF|r") .. " (Type '/cdmv mounted' to toggle)")
+        print("|cff00ccffDeltaCDM Status:|r")
+        print("  Hide in Combat: " .. (DeltaCDMDB.hideOutCombat and "|cffff0000ON|r" or "|cff00ff00OFF|r") .. " (Type '/dcdm combat' to toggle)")
+        print("  Hide Mounted:   " .. (DeltaCDMDB.hideMounted and "|cffff0000ON|r" or "|cff00ff00OFF|r") .. " (Type '/dcdm mounted' to toggle)")
     end
 end

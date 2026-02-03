@@ -1,8 +1,8 @@
 ## Interface: 120001, 120000
-## Title: CDMVisibility
+## Title: DeltaCDM
 ## Notes: Hides the Cooldown Manager when mounted or out of combat.
-## Author: Oxzidized
+## Author: oxzidized
 ## Version: 0.0.2
-## SavedVariables: CDMVisibilityDB
+## SavedVariables: DeltaCDMDB
 
-CDMVisibility.lua
+DeltaCDM.lua
