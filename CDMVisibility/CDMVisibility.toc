@@ -3,5 +3,6 @@
 ## Notes: Hides the Cooldown Manager when mounted or out of combat.
 ## Author: Oxzidized
 ## Version: 0.0.1
+## SavedVariables: CDMVisibilityDB
 
 CDMVisibility.lua

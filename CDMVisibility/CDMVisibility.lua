@@ -1,45 +1,91 @@
--- 1. CONFIGURATION
--- List of frames to manage. These are the likely names for the new UI elements.
+-- 1. CONFIGURATION & DEFAULTS
+local addonName = "CDMVisibility"
 local framesToManage = {
     "EssentialCooldownViewer",
     "UtilityCooldownViewer",
-    "TrackedBuffsViewer", -- Sometimes used for the buff/debuff tracking part
-    "TrackedBarsViewer"   -- Sometimes used for the bar tracking part
+    "BuffIconCooldownViewer",
+    "BuffBarCooldownViewer"
 }
 
--- 2. MAIN LOGIC
-local f = CreateFrame("Frame")
-f:RegisterEvent("PLAYER_REGEN_DISABLED")     -- Entering Combat
-f:RegisterEvent("PLAYER_REGEN_ENABLED")      -- Leaving Combat
-f:RegisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED") -- Mounting/Dismounting
-f:RegisterEvent("PLAYER_ENTERING_WORLD")     -- Login/Reload
+-- Default settings (if none exist yet)
+local defaults = {
+    hideInCombat = false, -- Default: Do NOT hide in combat
+    hideMounted = true    -- Default: DO hide when mounted
+}
 
-f:SetScript("OnEvent", function(self, event)
-    -- Check status
+-- 2. MAIN FRAME & EVENTS
+local f = CreateFrame("Frame")
+f:RegisterEvent("ADDON_LOADED")
+f:RegisterEvent("PLAYER_REGEN_DISABLED")
+f:RegisterEvent("PLAYER_REGEN_ENABLED")
+f:RegisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED")
+f:RegisterEvent("PLAYER_ENTERING_WORLD")
+
+-- 3. LOGIC
+local function UpdateVisibility()
+    if not CDMVisibilityDB then return end -- Safety check
+
     local inCombat = UnitAffectingCombat("player")
     local isMounted = IsMounted()
 
-    -- LOGIC: Show ONLY if we are in combat AND not mounted.
-    -- (This means it hides if you are mounted, OR if you are just standing around)
-    local shouldShow = inCombat and not isMounted
+    -- Determine if we should HIDE based on settings
+    local shouldHide = false
 
-    -- Apply visibility to all frames
+    if CDMVisibilityDB.hideInCombat and inCombat then
+        shouldHide = true
+    end
+
+    if CDMVisibilityDB.hideMounted and isMounted then
+        shouldHide = true
+    end
+
+    -- Apply visibility
     for _, frameName in ipairs(framesToManage) do
         local frame = _G[frameName]
         if frame then
-            if shouldShow then
-                frame:Show()
-            else
+            if shouldHide then
                 frame:Hide()
+            else
+                frame:Show()
             end
         end
     end
+end
+
+f:SetScript("OnEvent", function(_, event, arg1)
+    -- Load SavedVariables when addon loads
+    if event == "ADDON_LOADED" and arg1 == addonName then
+        if CDMVisibilityDB == nil then
+            CDMVisibilityDB = CopyTable(defaults)
+        end
+        UpdateVisibility()
+
+    -- Run check on all other events
+    elseif event ~= "ADDON_LOADED" then
+        UpdateVisibility()
+    end
 end)
 
-SLASH_SMARTCOOLDOWNS1 = "/cdmv"
-SlashCmdList["CDMVisibility"] = function(msg)
-    local inCombat = UnitAffectingCombat("player")
-    local isMounted = IsMounted()
-    print("|cff00ff00CDMV:|r Status Update - Combat:", inCombat, "Mounted:", isMounted)
-    f:GetScript("OnEvent")(f, "PLAYER_ENTERING_WORLD") -- Re-run the logic
+-- 4. SLASH COMMANDS
+SLASH_CDMVISIBILITY1 = "/cdmv"
+
+SlashCmdList["CDMVISIBILITY"] = function(msg)
+    msg = msg:lower():trim()
+
+    if msg == "combat" then
+        CDMVisibilityDB.hideInCombat = not CDMVisibilityDB.hideInCombat
+        print("|cff00ccffCDM:|r Hide in Combat is now: " .. (CDMVisibilityDB.hideInCombat and "|cffff0000ON|r" or "|cff00ff00OFF|r"))
+        UpdateVisibility()
+
+    elseif msg == "mounted" then
+        CDMVisibilityDB.hideMounted = not CDMVisibilityDB.hideMounted
+        print("|cff00ccffCDM:|r Hide while Mounted is now: " .. (CDMVisibilityDB.hideMounted and "|cffff0000ON|r" or "|cff00ff00OFF|r"))
+        UpdateVisibility()
+
+    else
+        -- Status / Help
+        print("|cff00ccffCDMVisibility Status:|r")
+        print("  Hide in Combat: " .. (CDMVisibilityDB.hideInCombat and "|cffff0000ON|r" or "|cff00ff00OFF|r") .. " (Type '/cdmv combat' to toggle)")
+        print("  Hide Mounted:   " .. (CDMVisibilityDB.hideMounted and "|cffff0000ON|r" or "|cff00ff00OFF|r") .. " (Type '/cdmv mounted' to toggle)")
+    end
 end
