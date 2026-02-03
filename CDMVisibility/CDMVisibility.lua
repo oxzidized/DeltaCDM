@@ -25,13 +25,13 @@ f:RegisterEvent("PLAYER_ENTERING_WORLD")
 local function UpdateVisibility()
     if not CDMVisibilityDB then return end -- Safety check
 
-    local inCombat = UnitAffectingCombat("player")
+    local outCombat = not UnitAffectingCombat("player")
     local isMounted = IsMounted()
 
     -- Determine if we should HIDE based on settings
     local shouldHide = false
 
-    if CDMVisibilityDB.hideInCombat and inCombat then
+    if CDMVisibilityDB.hideOutCombat and outCombat then
         shouldHide = true
     end
 
@@ -73,8 +73,8 @@ SlashCmdList["CDMVISIBILITY"] = function(msg)
     msg = msg:lower():trim()
 
     if msg == "combat" then
-        CDMVisibilityDB.hideInCombat = not CDMVisibilityDB.hideInCombat
-        print("|cff00ccffCDM:|r Hide in Combat is now: " .. (CDMVisibilityDB.hideInCombat and "|cffff0000ON|r" or "|cff00ff00OFF|r"))
+        CDMVisibilityDB.hideOutCombat = not CDMVisibilityDB.hideOutCombat
+        print("|cff00ccffCDM:|r Hide in Combat is now: " .. (CDMVisibilityDB.hideOutCombat and "|cffff0000ON|r" or "|cff00ff00OFF|r"))
         UpdateVisibility()
 
     elseif msg == "mounted" then
@@ -85,7 +85,7 @@ SlashCmdList["CDMVISIBILITY"] = function(msg)
     else
         -- Status / Help
         print("|cff00ccffCDMVisibility Status:|r")
-        print("  Hide in Combat: " .. (CDMVisibilityDB.hideInCombat and "|cffff0000ON|r" or "|cff00ff00OFF|r") .. " (Type '/cdmv combat' to toggle)")
+        print("  Hide in Combat: " .. (CDMVisibilityDB.hideOutCombat and "|cffff0000ON|r" or "|cff00ff00OFF|r") .. " (Type '/cdmv combat' to toggle)")
         print("  Hide Mounted:   " .. (CDMVisibilityDB.hideMounted and "|cffff0000ON|r" or "|cff00ff00OFF|r") .. " (Type '/cdmv mounted' to toggle)")
     end
 end
