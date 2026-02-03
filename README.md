@@ -29,5 +29,8 @@ This addon manages the following Blizzard UI elements:
 * BuffIconCooldownViewer
 * BuffBarCooldownViewer
 
+## Roadmap
+* Add settings UI for toggling options
+
 ## License
 GPLv3

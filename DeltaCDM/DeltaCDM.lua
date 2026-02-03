@@ -66,6 +66,8 @@ f:SetScript("OnEvent", function(_, event, arg1)
     end
 end)
 
+-- TODO: add options ui
+
 -- 4. SLASH COMMANDS
 SLASH_DELTACDM1 = "/dcdm"
 
